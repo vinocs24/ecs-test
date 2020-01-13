@@ -264,6 +264,7 @@ data "aws_ami" "stable_coreos" {
 }
 
 resource "aws_launch_configuration" "ecs-test-launchconfig" {
+  name_prefix                 = "ecs-launch"
   security_groups             = [aws_security_group.ecs-securitygroup.id]
   key_name                    = var.key_name
   image_id                    = data.aws_ami.stable_coreos.id
