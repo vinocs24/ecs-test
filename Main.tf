@@ -223,7 +223,7 @@ resource "aws_security_group" "myapp-elb-securitygroup" {
 #autoscaling
 resource "aws_autoscaling_group" "ecs-test-autoscaling" {
   name                 = "ecs-test-autoscaling"
-  vpc_zone_identifier  = [aws_subnet.ecs-private-1.id, aws_subnet.ecs-private-2.id]
+  vpc_zone_identifier  = [aws_subnet.ecs-public-1.id, aws_subnet.ecs-public-2.id]
   min_size             = var.autoscale_min
   max_size             = var.autoscale_max
   desired_capacity     = var.autoscale_desired
@@ -269,6 +269,7 @@ resource "aws_launch_configuration" "ecs-test-launchconfig" {
   key_name                    = var.key_name
   image_id                    = data.aws_ami.stable_coreos.id
   instance_type               = var.ecs_Instance_type
+  availability_zones          = "us-east-1a"
   iam_instance_profile        = aws_iam_instance_profile.app.name
   user_data                   = data.template_file.cloud_config.rendered
   associate_public_ip_address = true
@@ -328,7 +329,7 @@ resource "aws_alb_target_group" "test" {
 
 resource "aws_alb" "main" {
   name            = "tf-example-alb-ecs"
-  subnets         = [aws_subnet.ecs-private-1.id, aws_subnet.ecs-private-2.id]
+  subnets         = [aws_subnet.ecs-public-1.id, aws_subnet.ecs-public-2.id]
   security_groups = [aws_security_group.myapp-elb-securitygroup.id]
 }
 
