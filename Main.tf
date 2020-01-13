@@ -296,8 +296,10 @@ data "template_file" "task_definition" {
   template = file("task-definition.json")
   
   vars = {
-    image_url        = "ghost:latest"
-    container_name   = "ghost"
+    #image_url        = "ghost:latest"
+    image_url        = "teracy/hello-world-nodejs:dev_develop"
+    #container_name   = "ghost"
+    container_name   = "businessgeeks00/hello-world-nodejs"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
   }
@@ -317,8 +319,10 @@ resource "aws_ecs_service" "test" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.test.id
-    container_name   = "ghost"
-    container_port   = "2368"
+    #container_name   = "ghost"
+    #container_port   = "2368"
+    container_name   = "businessgeeks00/hello-world-nodejs"
+    container_port   = "3000"
  
     
   }
