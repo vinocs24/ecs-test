@@ -189,6 +189,13 @@ resource "aws_security_group" "ecs-securitygroup" {
     security_groups = [aws_security_group.myapp-elb-securitygroup.id]
   }
 
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.myapp-elb-securitygroup.id]
+  }
+  
   egress {
     from_port   = 0
     to_port     = 0
@@ -289,8 +296,9 @@ data "template_file" "task_definition" {
   template = file("task-definition.json")
   
   vars = {
-    image_url        = "ghost:latest"
-    container_name   = "ghost"
+    #image_url        = "ghost:latest" nginx:latest
+    image_url        = "nginx:latest" 
+    container_name   = "nodeapp"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
   }
@@ -310,8 +318,10 @@ resource "aws_ecs_service" "test" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.test.id
-    container_name   = "ghost"
-    container_port   = "2368"
+    #container_name   = "ghost"
+    #container_port   = "2368"
+    container_name   = "nodeapp"
+    container_port   = "3000"
     
   }
 
