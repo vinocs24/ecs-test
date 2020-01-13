@@ -303,8 +303,8 @@ data "template_file" "task_definition" {
     container_name   = "ghost"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
-  }
-}*/
+  }*/
+}
 
 resource "aws_ecs_task_definition" "ghost" {
   family                = "tf_example_ghost_td"
