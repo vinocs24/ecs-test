@@ -188,6 +188,13 @@ resource "aws_security_group" "ecs-securitygroup" {
     to_port   = 61000
     security_groups = [aws_security_group.myapp-elb-securitygroup.id]
   }
+  
+  ingress {
+    from_port       = 3000
+    to_port         = 3000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.myapp-elb-securitygroup.id]
+  }
 
   egress {
     from_port   = 0
@@ -287,14 +294,17 @@ resource "aws_ecs_cluster" "test-cluster" {
 
 data "template_file" "task_definition" {
   template = file("task-definition.json")
-
+   vars = {
+    REPOSITORY_URL = replace(aws_ecr_repository.myapp.repository_url, "https://", "")
+  }
+/*
   vars = {
     image_url        = "ghost:latest"
     container_name   = "ghost"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
   }
-}
+}*/
 
 resource "aws_ecs_task_definition" "ghost" {
   family                = "tf_example_ghost_td"
@@ -310,8 +320,10 @@ resource "aws_ecs_service" "test" {
 
   load_balancer {
     target_group_arn = aws_alb_target_group.test.id
-    container_name   = "ghost"
-    container_port   = "2368"
+    #container_name   = "ghost"
+    #container_port   = "2368"
+    container_name = "myapp"
+    container_port = 3000
   }
 
   depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
