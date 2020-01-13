@@ -267,7 +267,7 @@ resource "aws_launch_configuration" "ecs-test-launchconfig" {
   security_groups             = [aws_security_group.ecs-securitygroup.id]
   key_name                    = var.key_name
   image_id                    = data.aws_ami.stable_coreos.id
-  instance_type               = var.instance_type
+  instance_type               = var.ecs_Instance_type
   iam_instance_profile        = aws_iam_instance_profile.app.name
   user_data                   = data.template_file.cloud_config.rendered
   associate_public_ip_address = true
@@ -304,7 +304,7 @@ resource "aws_ecs_service" "test" {
   name            = "tf-example-ecs-ghost"
   cluster         = aws_ecs_cluster.test-cluster.id
   task_definition = aws_ecs_task_definition.ghost.arn
-  desired_count   = var.service_desired
+  desired_count   = var.autoscale_desired
   iam_role        = aws_iam_role.ecs_service.name
 
   load_balancer {
@@ -427,7 +427,7 @@ EOF
 data "template_file" "instance_profile" {
   template = file("instance-profile-policy.json")
 
-  vars {
+  vars = {
     app_log_group_arn = aws_cloudwatch_log_group.app.arn
     ecs_log_group_arn = aws_cloudwatch_log_group.ecs.arn
   }
