@@ -296,16 +296,14 @@ data "template_file" "task_definition" {
   template = file("task-definition.json")
   
   vars = {
-    #image_url        = "ghost:latest"
-    image_url        = "teracy/hello-world-nodejs:dev_develop"
-    #container_name   = "ghost"
-    container_name   = "hello-world-nodejs"
+    image_url        = "ghost:latest"
+    container_name   = "ghost"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
   }
 }
 
-resource "aws_ecs_task_definition" "hello-world-nodejs" {
+resource "aws_ecs_task_definition" "ghost" {
   family                = "tf_example_ghost_td"
   container_definitions = data.template_file.task_definition.rendered
 }
@@ -313,16 +311,15 @@ resource "aws_ecs_task_definition" "hello-world-nodejs" {
 resource "aws_ecs_service" "test" {
   name            = "tf-example-ecs-ghost"
   cluster         = aws_ecs_cluster.test-cluster.id
-  task_definition = aws_ecs_task_definition.hello-world-nodejs.arn
+  task_definition = aws_ecs_task_definition.ghost.arn
   desired_count   = var.autoscale_desired
   iam_role        = aws_iam_role.ecs_service.name
 
   load_balancer {
     target_group_arn = aws_alb_target_group.test.id
-    #container_name   = "ghost"
-    #container_port   = "2368"
-    container_name   = "hello-world-nodejs"
-    container_port   = "3000"
+    container_name   = "ghost"
+    container_port   = "2368"
+    
  
     
   }
