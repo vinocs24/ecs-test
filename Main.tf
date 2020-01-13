@@ -233,7 +233,7 @@ resource "aws_autoscaling_group" "ecs-test-autoscaling" {
 data "template_file" "cloud_config" {
   template = file("cloud-config.yml")
 
-  vars {
+  vars = {
     aws_region         = var.aws_region
     ecs_cluster_name   = aws_ecs_cluster.main.name
     ecs_log_level      = "info"
@@ -313,10 +313,7 @@ resource "aws_ecs_service" "test" {
     container_port   = "2368"
   }
 
-  depends_on = [
-    "aws_iam_role_policy.ecs_service",
-    "aws_alb_listener.front_end",
-  ]
+  depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
 }
 
 ## ALB
