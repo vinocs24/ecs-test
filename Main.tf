@@ -188,6 +188,21 @@ resource "aws_security_group" "ecs-securitygroup" {
     to_port   = 61000
     security_groups = [aws_security_group.myapp-elb-securitygroup.id]
   }
+  
+  ingress {
+    protocol  = "tcp"
+    from_port = 8080
+    to_port   = 8080
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  ingress {
+    protocol  = "tcp"
+    from_port = 443
+    to_port   = 443
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
 
   ingress {
     from_port       = 3000
@@ -296,29 +311,31 @@ data "template_file" "task_definition" {
   template = file("task-definition.json")
   
   vars = {
-    image_url        = "ghost:latest"
-    container_name   = "ghost"
+    #image_url        = "ghost:latest"
+    #container_name   = "ghost"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
   }
 }
 
-resource "aws_ecs_task_definition" "ghost" {
-  family                = "tf_example_ghost_td"
+resource "aws_ecs_task_definition" "test-http" {
+  family                = "test-http"
   container_definitions = data.template_file.task_definition.rendered
 }
 
 resource "aws_ecs_service" "test" {
   name            = "tf-example-ecs-ghost"
   cluster         = aws_ecs_cluster.test-cluster.id
-  task_definition = aws_ecs_task_definition.ghost.arn
+  task_definition = aws_ecs_task_definition.test-http.arn
   desired_count   = var.autoscale_desired
   iam_role        = aws_iam_role.ecs_service.name
 
   load_balancer {
     target_group_arn = aws_alb_target_group.test.id
-    container_name   = "ghost"
-    container_port   = "2368"
+    #container_name   = "ghost"
+    #container_port   = "2368"
+    container_name = "test-http"
+    container_port = 8080
     
  
     
