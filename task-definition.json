@@ -1,7 +1,7 @@
 [
     {
         "name": "test-http",
-        "image": "alexgaynor/test-http",
+        "image": "supinf/test-http",
         "cpu": 10,
         "memory": 512,
         "links": [],
