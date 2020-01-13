@@ -321,7 +321,7 @@ resource "aws_ecs_service" "test" {
     target_group_arn = aws_alb_target_group.test.id
     #container_name   = "ghost"
     #container_port   = "2368"
-    container_name   = "businessgeeks00/hello-world-nodejs"
+    container_name   = "hello-world-nodejs"
     container_port   = "3000"
  
     
