@@ -269,12 +269,90 @@ resource "aws_launch_configuration" "ecs-test-launchconfig" {
   image_id                    = data.aws_ami.stable_coreos.id
   instance_type               = var.instance_type
   iam_instance_profile        = aws_iam_instance_profile.app.name
-  user_data                   = "${data.template_file.cloud_config.rendered}"
+  user_data                   = data.template_file.cloud_config.rendered
   associate_public_ip_address = true
 
   lifecycle {
     create_before_destroy = true
   }
+}
+
+
+## ECS
+
+resource "aws_ecs_cluster" "test-cluster" {
+  name = "test-cluster"
+}
+
+data "template_file" "task_definition" {
+  template = file("task-definition.json")
+
+  vars {
+    image_url        = "ghost:latest"
+    container_name   = "ghost"
+    log_group_region = var.aws_region
+    log_group_name   = aws_cloudwatch_log_group.app.name
+  }
+}
+
+resource "aws_ecs_task_definition" "ghost" {
+  family                = "tf_example_ghost_td"
+  container_definitions = data.template_file.task_definition.rendered
+}
+
+resource "aws_ecs_service" "test" {
+  name            = "tf-example-ecs-ghost"
+  cluster         = aws_ecs_cluster.test-cluster.id
+  task_definition = aws_ecs_task_definition.ghost.arn
+  desired_count   = var.service_desired
+  iam_role        = aws_iam_role.ecs_service.name
+
+  load_balancer {
+    target_group_arn = aws_alb_target_group.test.id
+    container_name   = "ghost"
+    container_port   = "2368"
+  }
+
+  depends_on = [
+    "aws_iam_role_policy.ecs_service",
+    "aws_alb_listener.front_end",
+  ]
+}
+
+## ALB
+
+resource "aws_alb_target_group" "test" {
+  name     = "tf-example-ecs-ghost"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = aws_vpc.ecs-vpc.id
+}
+
+resource "aws_alb" "main" {
+  name            = "tf-example-alb-ecs"
+  subnets         = [aws_subnet.ecs-private-1.id, aws_subnet.ecs-private-2.id]
+  security_groups = [aws_security_group.myapp-elb-securitygroup.id]
+}
+
+resource "aws_alb_listener" "front_end" {
+  load_balancer_arn = aws_alb.main.id
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_alb_target_group.test.id
+    type             = "forward"
+  }
+}
+
+## CloudWatch Logs
+
+resource "aws_cloudwatch_log_group" "ecs" {
+  name = "tf-ecs-group/ecs-agent"
+}
+
+resource "aws_cloudwatch_log_group" "app" {
+  name = "tf-ecs-group/app-ghost"
 }
 
 ## IAM
