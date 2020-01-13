@@ -267,9 +267,8 @@ resource "aws_launch_configuration" "ecs-test-launchconfig" {
   name_prefix                 = "ecs-launch"
   security_groups             = [aws_security_group.ecs-securitygroup.id]
   key_name                    = var.key_name
-  image_id                    = data.aws_ami.stable_coreos.id
+  image_id                    = data.aws_ami.stable_coreos.id[var.aws_region]
   instance_type               = var.ecs_Instance_type
-  availability_zones          = "us-east-1a"
   iam_instance_profile        = aws_iam_instance_profile.app.name
   user_data                   = data.template_file.cloud_config.rendered
   associate_public_ip_address = true
