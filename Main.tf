@@ -235,7 +235,7 @@ data "template_file" "cloud_config" {
 
   vars = {
     aws_region         = var.aws_region
-    ecs_cluster_name   = aws_ecs_cluster.main.name
+    ecs_cluster_name   = aws_ecs_cluster.test-cluster.name
     ecs_log_level      = "info"
     ecs_agent_version  = "latest"
     ecs_log_group_name = aws_cloudwatch_log_group.ecs.name
@@ -287,7 +287,7 @@ resource "aws_ecs_cluster" "test-cluster" {
 data "template_file" "task_definition" {
   template = file("task-definition.json")
 
-  vars {
+  vars = {
     image_url        = "ghost:latest"
     container_name   = "ghost"
     log_group_region = var.aws_region
