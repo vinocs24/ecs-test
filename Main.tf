@@ -340,7 +340,8 @@ resource "aws_ecs_service" "test" {
     
   }
 
-  depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
+  #depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
+  depends_on = [aws_iam_role_policy.ecs_service]
 }
 
 ## ALB
