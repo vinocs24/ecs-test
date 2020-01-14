@@ -316,61 +316,31 @@ data "template_file" "task_definition" {
   }
 }
 
-resource "aws_ecs_task_definition" "test-http" {
-  family                = "test-http"
+resource "aws_ecs_task_definition" "ghost" {
+  family                = "tf_example_ghost_td"
   container_definitions = data.template_file.task_definition.rendered
 }
 
 resource "aws_ecs_service" "test" {
   name            = "tf-example-ecs-ghost"
   cluster         = aws_ecs_cluster.test-cluster.id
-  task_definition = aws_ecs_task_definition.test-http.arn
+  task_definition = aws_ecs_task_definition.ghost.arn
   desired_count   = var.autoscale_desired
   iam_role        = aws_iam_role.ecs_service.name
 
   load_balancer {
-    #target_group_arn = aws_alb_target_group.test.id
-    #container_name   = "ghost"
-    #container_port   = "2368"
-    elb_name = aws_elb.test-http.id
-    container_name = "test-http"
-    container_port = 8080
-    
- 
-    
+    target_group_arn = aws_alb_target_group.test.id
+    container_name   = "ghost"
+    container_port   = "2368"
+      
   }
 
-  #depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
-  depends_on = [aws_iam_role_policy.ecs_service]
+  depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
+  
 }
 
 ## ALB
 
-resource "aws_elb" "test-http" {
-    name = "test-http-elb"
-    security_groups = [aws_security_group.myapp-elb-securitygroup.id]
-    subnets         = [aws_subnet.ecs-public-1.id, aws_subnet.ecs-public-2.id]
-
-    listener {
-        lb_protocol = "http"
-        lb_port = 80
-
-        instance_protocol = "http"
-        instance_port = 8080
-    }
-
-    health_check {
-        healthy_threshold = 3
-        unhealthy_threshold = 2
-        timeout = 3
-        target = "HTTP:8080/hello-world"
-        interval = 5
-    }
-
-    cross_zone_load_balancing = true
-}
-
-/*
 resource "aws_alb_target_group" "test" {
   name     = "tf-example-ecs-ghost"
   port     = 8080
@@ -380,16 +350,9 @@ resource "aws_alb_target_group" "test" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    path                = "/hello-world"
+    path                = "/"
     interval            = 30
   }
-}
-
-resource "aws_alb_target_group_attachment" "my-tg" {
-  target_group_arn = aws_alb_target_group.test.arn
-  target_id        = aws_launch_configuration.ecs-test-launchconfig.id
-  port             = 8080
-
 }
 
 resource "aws_alb" "main" {
@@ -408,8 +371,6 @@ resource "aws_alb_listener" "front_end" {
     type             = "forward"
   }
   
-  
-}*/
 
 ## CloudWatch Logs
 
