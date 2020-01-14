@@ -9,7 +9,7 @@ output "launch_configuration" {
 output "asg_name" {
   value = aws_autoscaling_group.ecs-test-autoscaling.id
 }
-/*
+
 output "elb_hostname" {
-  value = aws_alb.test-http.dns_name
-}*/
+  value = aws_alb.test.dns_name
+}
