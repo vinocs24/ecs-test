@@ -1,22 +1,22 @@
 [
-    {
-        "name": "test-http",
-        "image": "supinf/test-http",
-        "cpu": 10,
-        "memory": 512,
-        "links": [],
-        "portMappings": [
-            {
-                "containerPort": 8080,
-                "hostPort": 8080,
-                "protocol": "tcp"
-            }
-        ],
-        "essential": true,
-        "entryPoint": [],
-        "command": [],
-        "environment": [],
-        "mountPoints": [],
-        "volumesFrom": []
+  {
+    "cpu": 256,
+    "essential": true,
+    "image": "${image_url}",
+    "memory": 512,
+    "name": "${container_name}",
+    "portMappings": [
+      {
+        "containerPort": 2368,
+        "hostPort": 0
+      }
+    ],
+    "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+            "awslogs-group": "${log_group_name}",
+            "awslogs-region": "${log_group_region}"
+        }
     }
+  }
 ]
