@@ -375,6 +375,7 @@ resource "aws_alb_target_group" "test" {
   name     = "tf-example-ecs-ghost"
   port     = 8080
   protocol = "HTTP"
+  path = "HTTP:8080/hello-world"
   vpc_id   = aws_vpc.ecs-vpc.id
 }
 
