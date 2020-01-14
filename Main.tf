@@ -329,10 +329,10 @@ resource "aws_ecs_service" "test" {
   iam_role        = aws_iam_role.ecs_service.name
 
   load_balancer {
-    target_group_arn = aws_alb_target_group.test.id
+    #target_group_arn = aws_alb_target_group.test.id
     #container_name   = "ghost"
     #container_port   = "2368"
-    #elb_name = aws_alb.main.id
+    elb_name = aws_alb.test-http.id
     container_name = "test-http"
     container_port = 8080
     
@@ -340,12 +340,12 @@ resource "aws_ecs_service" "test" {
     
   }
 
-  depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
-  #depends_on = [aws_iam_role_policy.ecs_service]
+  #depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
+  depends_on = [aws_iam_role_policy.ecs_service]
 }
 
 ## ALB
-/*
+
 resource "aws_elb" "test-http" {
     name = "test-http-elb"
     security_groups = [aws_security_group.myapp-elb-securitygroup.id]
@@ -369,8 +369,8 @@ resource "aws_elb" "test-http" {
 
     cross_zone_load_balancing = true
 }
-*/
 
+/*
 resource "aws_alb_target_group" "test" {
   name     = "tf-example-ecs-ghost"
   port     = 8080
@@ -409,7 +409,7 @@ resource "aws_alb_listener" "front_end" {
   }
   
   
-}
+}*/
 
 ## CloudWatch Logs
 
