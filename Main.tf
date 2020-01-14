@@ -388,17 +388,13 @@ resource "aws_alb_listener" "front_end" {
   load_balancer_arn = aws_alb.main.id
   port              = "80"
   protocol          = "HTTP"
-  
-  health_check {
-       
-        target = "HTTP:8080/hello-world"
-        
-    }
 
   default_action {
     target_group_arn = aws_alb_target_group.test.id
     type             = "forward"
   }
+  
+  
 }
 
 ## CloudWatch Logs
