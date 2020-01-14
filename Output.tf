@@ -10,6 +10,6 @@ output "asg_name" {
   value = aws_autoscaling_group.ecs-test-autoscaling.id
 }
 
-output "elb_hostname" {
+/*output "elb_hostname" {
   value = aws_elb.test-http.dns_name
-}
+}*/
