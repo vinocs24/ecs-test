@@ -385,10 +385,10 @@ resource "aws_alb_target_group" "test" {
   }
 }
 
-resource "aws_lb_target_group_attachment" "my-tg" {
+resource "aws_alb_target_group_attachment" "my-tg" {
   target_group_arn = aws_alb_target_group.test.arn
   target_id        = aws_launch_configuration.ecs-test-launchconfig.id
-  port             = 3000
+  port             = 8080
 
 }
 
