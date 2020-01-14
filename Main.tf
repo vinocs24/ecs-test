@@ -311,7 +311,7 @@ data "template_file" "task_definition" {
   template = file("task-definition.json")
   
   vars = {
-    image_url        = "git+https://github.com/fhinkel/nodejs-hello-world.git"
+    image_url        = "https://github.com/fhinkel/nodejs-hello-world.git"
     container_name   = "nodejs-hello-world"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
