@@ -380,7 +380,7 @@ resource "aws_alb_target_group" "test" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 3
-    path                = "HTTP:8080/hello-world"
+    path                = "/HTTP:8080/hello-world"
     interval            = 30
   }
 }
