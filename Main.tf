@@ -332,7 +332,7 @@ resource "aws_ecs_service" "test" {
     #target_group_arn = aws_alb_target_group.test.id
     #container_name   = "ghost"
     #container_port   = "2368"
-    elb_name = aws_alb.test-http.id
+    elb_name = aws_elb.test-http.id
     container_name = "test-http"
     container_port = 8080
     
