@@ -370,7 +370,7 @@ resource "aws_alb_listener" "front_end" {
     target_group_arn = aws_alb_target_group.test.id
     type             = "forward"
   }
-  
+}  
 
 ## CloudWatch Logs
 
