@@ -332,7 +332,7 @@ resource "aws_ecs_service" "test" {
     #target_group_arn = aws_alb_target_group.test.id
     #container_name   = "ghost"
     #container_port   = "2368"
-    elb_name = aws_elb.test-http.id
+    elb_name = aws_elb.test.id
     container_name = "test-http"
     container_port = 8080
     
@@ -340,11 +340,12 @@ resource "aws_ecs_service" "test" {
     
   }
 
-  #depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
-  depends_on = [aws_iam_role_policy.ecs_service]
+  depends_on = [aws_iam_role_policy.ecs_service, aws_alb_listener.front_end]
+  #depends_on = [aws_iam_role_policy.ecs_service]
 }
 
 ## ALB
+/*
 resource "aws_elb" "test-http" {
     name = "test-http-elb"
     security_groups = [aws_security_group.myapp-elb-securitygroup.id]
@@ -368,8 +369,8 @@ resource "aws_elb" "test-http" {
 
     cross_zone_load_balancing = true
 }
+*/
 
-/*
 resource "aws_alb_target_group" "test" {
   name     = "tf-example-ecs-ghost"
   port     = 8080
@@ -387,12 +388,18 @@ resource "aws_alb_listener" "front_end" {
   load_balancer_arn = aws_alb.main.id
   port              = "80"
   protocol          = "HTTP"
+  
+  health_check {
+       
+        target = "HTTP:8080/hello-world"
+        
+    }
 
   default_action {
     target_group_arn = aws_alb_target_group.test.id
     type             = "forward"
   }
-}*/
+}
 
 ## CloudWatch Logs
 
