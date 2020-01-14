@@ -329,10 +329,10 @@ resource "aws_ecs_service" "test" {
   iam_role        = aws_iam_role.ecs_service.name
 
   load_balancer {
-    #target_group_arn = aws_alb_target_group.test.id
+    target_group_arn = aws_alb_target_group.test.id
     #container_name   = "ghost"
     #container_port   = "2368"
-    elb_name = aws_alb.main.id
+    #elb_name = aws_alb.main.id
     container_name = "test-http"
     container_port = 8080
     
