@@ -6,7 +6,6 @@ try {
     node {
       cleanWs()
       checkout scm
-      
     }
   }
 
@@ -20,7 +19,7 @@ try {
         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
       ]]) {
         ansiColor('xterm') {
-          sh 'terraform init -input=false'
+          sh 'terraform init'
         }
       }
     }
@@ -36,17 +35,13 @@ try {
         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
       ]]) {
         ansiColor('xterm') {
-          sh 'terraform plan -out=tfplan -input=false'
+          sh 'terraform plan'
         }
       }
     }
   }
 
-stage('Approval') {
-        script {
-          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
-      }
-    }
+  if (env.BRANCH_NAME == 'master') {
 
     // Run terraform apply
     stage('apply') {
@@ -58,20 +53,29 @@ stage('Approval') {
           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           ansiColor('xterm') {
-
-              sh "set +e; terraform apply -auto-approve -input=false "tfplan";"
-
+            sh 'terraform apply -auto-approve'
           }
         }
-      }    
-  }
-  currentBuild.result = 'SUCCESS'
-  
-  stage('Approval') {
-        script {
-          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
       }
     }
+
+    // Run terraform show
+    stage('show') {
+      node {
+        withCredentials([[
+          $class: 'AmazonWebServicesCredentialsBinding',
+          credentialsId: credentialsId,
+          accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+          secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+          ansiColor('xterm') {
+            sh 'terraform show'
+          }
+        }
+      }
+    }
+  }
+  currentBuild.result = 'SUCCESS'
   
     // Run terraform destroy
     stage('destroy') {
@@ -83,13 +87,12 @@ stage('Approval') {
           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           ansiColor('xterm') {
-              
-            sh "set +e; terraform destroy -auto-approve -input=false "tfplan";"
+            sh 'terraform destroy -auto-approve'
           }
         }
       }
     }
-}
+  }
 catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException flowError) {
   currentBuild.result = 'ABORTED'
 }
