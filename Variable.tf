@@ -18,7 +18,7 @@ variable "ecs_Instance_type" {
 
 variable "key_name" {
   description = "SSH key name to access the EC2 instances"
-  default     = "jen_key"
+  default     = "jenkins"
 }
 
 variable "vpc_cidr_block" {
