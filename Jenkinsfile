@@ -53,7 +53,7 @@ try {
           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           ansiColor('xterm') {
-            sh 'terraform apply -input'
+            sh 'terraform apply -input=true'
           }
         }
       }
