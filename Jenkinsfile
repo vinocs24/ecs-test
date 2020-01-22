@@ -6,8 +6,23 @@ try {
     node {
       cleanWs()
       checkout scm
+      
+//        def tfHome = tool name: 'Terraform'
+//        env.PATH = "${tfHome}:${env.PATH}"
     }
   }
+
+//  stage('Set Terraform path') {
+//  steps {
+//  script {
+//  def tfHome = tool name: 'Terraform'
+//  env.PATH = "${tfHome}:${env.PATH}"
+//  }
+//  sh 'terraform — version'
+ 
+ 
+//  }
+//  }
 
   // Run terraform init
   stage('init') {
@@ -19,7 +34,8 @@ try {
         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
       ]]) {
         ansiColor('xterm') {
-          sh 'terraform init'
+          sh 'terraform init -input=false'
+//          sh "${tfHome}/terraform init"
         }
       }
     }
@@ -35,13 +51,22 @@ try {
         secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
       ]]) {
         ansiColor('xterm') {
-          sh 'terraform plan'
+          sh 'terraform plan -out=tfplan -input=false'
+//          sh "${tfHome}/terraform plan"
         }
       }
     }
   }
 
-  if (env.BRANCH_NAME == 'master') {
+stage('Approval') {
+//      steps {
+        script {
+          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+//        }
+      }
+    }
+
+//  if (env.BRANCH_NAME == 'master') {
 
     // Run terraform apply
     stage('apply') {
@@ -53,14 +78,19 @@ try {
           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           ansiColor('xterm') {
-            sh 'terraform apply -input=true'
+//              sh """
+//              terraform apply tfplan
+//              terraform apply -input=false -auto-approve "tfplan"
+              sh "set +e; terraform apply -auto-approve -input=false "tfplan";"
+//              sh "${tfHome}/terraform apply -auto-approve"
+//              """
           }
         }
       }
-    }
+ //   }
 
     // Run terraform show
-    stage('show') {
+/*    stage('show') {
       node {
         withCredentials([[
           $class: 'AmazonWebServicesCredentialsBinding',
@@ -69,14 +99,16 @@ try {
           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           ansiColor('xterm') {
-            sh 'terraform show'
+//             sh "terraform show"
+//              sh "${tfHome}/terraform show"
           }
         }
       }
     }
+*/    
   }
   currentBuild.result = 'SUCCESS'
-  }
+}
 catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException flowError) {
   currentBuild.result = 'ABORTED'
 }
