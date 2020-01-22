@@ -63,8 +63,16 @@ stage('Approval') {
 
           }
         }
+      }    
+  }
+  currentBuild.result = 'SUCCESS'
+  
+  stage('Approval') {
+        script {
+          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
       }
-
+    }
+  
     // Run terraform destroy
     stage('destroy') {
       node {
@@ -81,9 +89,6 @@ stage('Approval') {
         }
       }
     }
-    
-  }
-  currentBuild.result = 'SUCCESS'
 }
 catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException flowError) {
   currentBuild.result = 'ABORTED'
