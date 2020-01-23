@@ -41,7 +41,13 @@ try {
     }
   }
 
-  if (env.BRANCH_NAME == 'master') {
+  stage('Approval') {
+        script {
+          def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+      }
+    }
+  
+//  if (env.BRANCH_NAME == 'master') {
 
     // Run terraform apply
     stage('apply') {
@@ -53,7 +59,8 @@ try {
           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           ansiColor('xterm') {
-            sh 'terraform apply -auto-approve'
+           // sh 'terraform apply -auto-approve'
+            sh "set +e; terraform apply -auto-approve -input=false;"
           }
         }
       }
@@ -76,6 +83,12 @@ try {
     }
   }
   currentBuild.result = 'SUCCESS'
+
+  stage('Approval') {
+        script {
+          def userInput = input(id: 'confirm', message: 'Destroy Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Destroy terraform', name: 'confirm'] ])
+      }
+    }
   
     // Run terraform destroy
     stage('destroy') {
@@ -87,7 +100,8 @@ try {
           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           ansiColor('xterm') {
-            sh 'terraform destroy -auto-approve'
+          //  sh 'terraform destroy -auto-approve'
+            sh "set +e; terraform destroy -auto-approve -input=false;"
           }
         }
       }
