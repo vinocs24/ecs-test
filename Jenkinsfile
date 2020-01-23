@@ -83,12 +83,12 @@ try {
     }
   }
   currentBuild.result = 'SUCCESS'
-
+/*
   stage('Approval') {
         script {
           def userInput = input(id: 'confirm', message: 'Destroy Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Destroy terraform', name: 'confirm'] ])
       }
-    }
+    } */
   
     // Run terraform destroy
     stage('destroy') {
@@ -100,13 +100,13 @@ try {
           secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
         ]]) {
           ansiColor('xterm') {
-          //  sh 'terraform destroy -auto-approve'
-            sh "set +e; terraform destroy -auto-approve -input=false;"
+            sh 'terraform destroy -auto-approve'
+            //sh "set +e; terraform destroy -auto-approve -input=false;"
           }
         }
       }
     }
-  
+  }
 catch (org.jenkinsci.plugins.workflow.steps.FlowInterruptedException flowError) {
   currentBuild.result = 'ABORTED'
 }
