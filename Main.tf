@@ -205,8 +205,8 @@ resource "aws_security_group" "ecs-securitygroup" {
   
 
   ingress {
-    from_port       = 3000
-    to_port         = 3000
+    from_port       = 8888
+    to_port         = 8888
     protocol        = "tcp"
     security_groups = [aws_security_group.myapp-elb-securitygroup.id]
   }
@@ -234,6 +234,20 @@ resource "aws_security_group" "myapp-elb-securitygroup" {
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+    egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8888
+    to_port     = 8888
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -311,14 +325,14 @@ data "template_file" "task_definition" {
   template = file("task-definition.json")
   
   vars = {
-    image_url        = "nginx:latest"
-    container_name   = "nginx"
+    image_url        = "vinocs24/dockerhub:hello-world"
+    container_name   = "vinocs24/dockerhub"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
   }
 }
 
-resource "aws_ecs_task_definition" "nginx" {
+resource "aws_ecs_task_definition" "vinocs24/dockerhub" {
   family                = "tf_example_ghost_td"
   container_definitions = data.template_file.task_definition.rendered
 }
@@ -326,14 +340,14 @@ resource "aws_ecs_task_definition" "nginx" {
 resource "aws_ecs_service" "test" {
   name            = "tf-example-ecs-ghost"
   cluster         = aws_ecs_cluster.test-cluster.id
-  task_definition = aws_ecs_task_definition.nginx.arn
+  task_definition = aws_ecs_task_definition.vinocs24/dockerhub.arn
   desired_count   = var.autoscale_desired
   iam_role        = aws_iam_role.ecs_service.name
 
   load_balancer {
     target_group_arn = aws_alb_target_group.test.id
-    container_name   = "nginx"
-    container_port   = "80"
+    container_name   = "vinocs24/dockerhub"
+    container_port   = "8888"
       
   }
 
