@@ -325,14 +325,14 @@ data "template_file" "task_definition" {
   template = file("task-definition.json")
   
   vars = {
-    image_url        = "vinocs24/dockerhub:hello-world"
-    container_name   = "dockerhub"
+    image_url        = "nginx:latest"
+    container_name   = "nginx"
     log_group_region = var.aws_region
     log_group_name   = aws_cloudwatch_log_group.app.name
   }
 }
 
-resource "aws_ecs_task_definition" "dockerhub" {
+resource "aws_ecs_task_definition" "nginx" {
   family                = "tf_example_ghost_td"
   container_definitions = data.template_file.task_definition.rendered
 }
@@ -340,14 +340,14 @@ resource "aws_ecs_task_definition" "dockerhub" {
 resource "aws_ecs_service" "test" {
   name            = "tf-example-ecs-ghost"
   cluster         = aws_ecs_cluster.test-cluster.id
-  task_definition = aws_ecs_task_definition.dockerhub.arn
+  task_definition = aws_ecs_task_definition.nginx.arn
   desired_count   = var.autoscale_desired
   iam_role        = aws_iam_role.ecs_service.name
 
   load_balancer {
     target_group_arn = aws_alb_target_group.test.id
-    container_name   = "dockerhub"
-    container_port   = "8888"
+    container_name   = "nginx"
+    container_port   = "80"
       
   }
 
@@ -379,7 +379,7 @@ resource "aws_alb" "main" {
 
 resource "aws_alb_listener" "front_end" {
   load_balancer_arn = aws_alb.main.id
-  port              = "8888"
+  port              = "80"
   protocol          = "HTTP"
 
   default_action {
